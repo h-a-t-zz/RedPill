@@ -1,5 +1,7 @@
-stage 'Pull'
-sh 'make pull'
+node{
+  stage 'Pull'
+  sh 'make pull'
 
-stage 'Build'
-sh 'make build'
+  stage 'Build'
+  sh 'make build'
+}
