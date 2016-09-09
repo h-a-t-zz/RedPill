@@ -10,7 +10,6 @@ CREATE TABLE IF NOT EXISTS users (
 )
 ENGINE=INNODB;
 
-INSERT INTO sqli (username, nom, prenom, email) VALUES
-('toto', 'toto', 'toto', 'toto@test.com'),
-('tata', 'tata', 'tata', 'tata@test.com'),
-('titi', 'titi', 'titi', 'titi@test.com');
+INSERT INTO sqli.users (user_id, username, nom, prenom, email) VALUES ('0','toto', 'toto', 'toto', 'toto@test.com');
+INSERT INTO sqli.users (user_id, username, nom, prenom, email) VALUES ('1','tata', 'tata', 'tata', 'tata@test.com');
+INSERT INTO sqli.users (user_id, username, nom, prenom, email) VALUES ('2','titi', 'titi', 'titi', 'titi@test.com');

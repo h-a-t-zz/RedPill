@@ -7,7 +7,7 @@ run:
 build:
 	docker build -t $(NAME)-php:$(VERSION) .
 pull:
-	docker pull nimmis/apache-php5
+	docker pull php:7.0-apache
 	docker pull mysql/mysql-server:5.6
 
 stop:
