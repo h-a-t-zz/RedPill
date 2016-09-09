@@ -6,6 +6,7 @@ run:
 
 build:
 	docker build -t $(NAME)-php:$(VERSION) .
+	
 pull:
 	docker pull php:7.0-apache
 	docker pull mysql/mysql-server:5.6
