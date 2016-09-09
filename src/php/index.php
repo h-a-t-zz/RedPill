@@ -8,7 +8,6 @@ if(mysql_num_rows($sql) > 0)
 {
 $data = mysql_fetch_object($sql);
 echo "
-$data
 <fieldset>
 <legend>Profile de ".$data->username."</legend>
 <p>Nom d'utilisateur : ".$data->username."</p>
