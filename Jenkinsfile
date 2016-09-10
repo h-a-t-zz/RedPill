@@ -11,7 +11,7 @@ node{
   stage 'Test with Zap'
   def busy = docker.image('busybox');
   busy.inside("-v phpsqli-app:/data"){
-    sh "cp -r ./src/php/staging.sql /data/"
+    sh "cp -r ./src/php/index.php /data/"
     sh "chown -R www-data:www-data /data"
   }
 
@@ -21,10 +21,12 @@ node{
 
   def php = docker.build('phpsqli-app', '.')
   def zap = docker.image('owasp/zap2docker-weekly')
-  def staging_param = '-e MYSQL_RANDOM_ROOT_PASSWORD=yes -e MYSQL_USER=user -e MYSQL_PASSWORD=password --label traefik.enable=false'
+  def db = docker.image('mysql/mysql-server:5.6')
+
+  def staging_param = "-e 'MYSQL_RANDOM_ROOT_PASSWORD=yes' -e 'MYSQL_USER=user' -e 'MYSQL_PASSWORD=password' --label 'traefik.enable=false'"
   def traefik_param = "--label traefik.backend='app' --label traefik.port='80' --label traefik.protocol='http' --label traefik.weight='10' --label traefik.frontend.rule='Path:/app' --label traefik.frontend.passHostHeader='true' --label traefik.priority='10' "
-  def stagingdb = db.run('${staging_param} -v phpsqli-db:/docker-entrypoint-initdb.d/ -d')
-  def app = php.run ("-d -P ${traefik_param} -v phpsqli-app:/var/www/html  --link ${stagingdb.id}:db")
+  def staging_db = db.run("${staging_param} -v phpsqli-db:/docker-entrypoint-initdb.d/")
+  def staging_app = php.run ("-P ${traefik_param} -v phpsqli-app:/var/www/html  --link ${staging_db.id}:db")
 
   zap.inside("--link ${app.id}:app -v phpsqli-zap:/zap/wrk") {
           println('Waiting for server to be ready')
@@ -49,7 +51,7 @@ node{
   }
   def prod_param = '-e MYSQL_RANDOM_ROOT_PASSWORD=yes -e MYSQL_USER=user -e MYSQL_PASSWORD=p4s5w0rd --label traefik.enable=false'
   def prod_db = db.run('${prod_param} -v phpsqli-db:/docker-entrypoint-initdb.d/ -d')
-  def prod_app = php.run ("-d -P ${traefik_param} -v phpsqli-app:/var/www/html  --link ${stagingdb.id}:db")
+  def prod_app = php.run ("-d -P ${traefik_param} -v phpsqli-app:/var/www/html  --link ${prod_db.id}:db")
 
 
 
