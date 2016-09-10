@@ -16,6 +16,7 @@ node{
   }
 
   busy.inside("-v phpsqli-db:/data"){
+    sh "rm -rf /data/*"
     sh "cp -r ./src/sql/staging.sql /data/"
   }
 
@@ -23,8 +24,8 @@ node{
   def zap = docker.image('owasp/zap2docker-weekly')
   def db = docker.image('mysql/mysql-server:5.6')
 
-  def staging_param = "-e 'MYSQL_RANDOM_ROOT_PASSWORD=yes' -e 'MYSQL_USER=user' -e 'MYSQL_PASSWORD=password' --label 'traefik.enable=false'"
-  def traefik_param = "--label traefik.backend='app' --label traefik.port='80' --label traefik.protocol='http' --label traefik.weight='10' --label traefik.frontend.rule='Path:/app' --label traefik.frontend.passHostHeader='true' --label traefik.priority='10' "
+  def staging_param = "-e 'MYSQL_RANDOM_ROOT_PASSWORD=yes' -e 'MYSQL_USER=user' -e 'MYSQL_PASSWORD=password' -e 'MYSQL_DATABASE=sqli' --label 'traefik.enable=false'"
+  def traefik_param = "--label traefik.backend='app' --label traefik.port='80' --label traefik.protocol='http' --label traefik.weight='10' --label traefik.frontend.rule='Host:cd.chocobo.yogosha.com' --label traefik.frontend.passHostHeader='true' --label traefik.priority='10' "
   def staging_db = db.run("${staging_param} -v phpsqli-db:/docker-entrypoint-initdb.d/")
   def staging_app = php.run ("-P ${traefik_param} -v phpsqli-app:/var/www/html  --link ${staging_db.id}:db")
 
@@ -41,21 +42,16 @@ node{
 
 
   stage 'QA Staging'
-  input "How do you like ${env.BUILD_URL}app ?"
+  input "Is https://cd.chocobo.yogosha.com good?"
 
   stage 'Production'
   staging_db.stop()
+  staging_app.stop()
   busy.inside("-v phpsqli-db:/data"){
     sh "rm -rf /data/*"
     sh "cp -r ./src/sql/production.sql /data/"
   }
-  def prod_param = '-e MYSQL_RANDOM_ROOT_PASSWORD=yes -e MYSQL_USER=user -e MYSQL_PASSWORD=p4s5w0rd --label traefik.enable=false'
-  def prod_db = db.run('${prod_param} -v phpsqli-db:/docker-entrypoint-initdb.d/ -d')
+  def prod_param = "-e MYSQL_RANDOM_ROOT_PASSWORD=yes -e MYSQL_USER=user -e MYSQL_PASSWORD=p4s5w0rd -e 'MYSQL_DATABASE=sqli' --label traefik.enable=false"
+  def prod_db = db.run("${prod_param} -v phpsqli-db:/docker-entrypoint-initdb.d/")
   def prod_app = php.run ("-d -P ${traefik_param} -v phpsqli-app:/var/www/html  --link ${prod_db.id}:db")
-
-
-
-
-
-
 }
