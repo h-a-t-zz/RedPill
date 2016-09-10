@@ -28,7 +28,7 @@ node{
   def staging_db = db.run("${staging_param} -v phpsqli-db:/docker-entrypoint-initdb.d/")
   def staging_app = php.run ("-P ${traefik_param} -v phpsqli-app:/var/www/html  --link ${staging_db.id}:db")
 
-  zap.inside("--link ${app.id}:app -v phpsqli-zap:/zap/wrk") {
+  zap.inside("--link ${staging_app.id}:app -v phpsqli-zap:/zap/wrk") {
           println('Waiting for server to be ready')
           sh "until \$(curl --output /dev/null --silent --head --fail http://app/index.php); do printf '.'; sleep 5; done"
           println('It Works!')
@@ -41,10 +41,10 @@ node{
 
 
   stage 'QA Staging'
-  input "How do you like ${env.BUILD_URL}/app ?"
+  input "How do you like ${env.BUILD_URL}app ?"
 
   stage 'Production'
-  stagingdb.stop()
+  staging_db.stop()
   busy.inside("-v phpsqli-db:/data"){
     sh "rm -rf /data/*"
     sh "cp -r ./src/sql/production.sql /data/"
