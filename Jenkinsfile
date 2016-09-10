@@ -1,50 +1,59 @@
 node{
-  def busy = docker.image('busybox');
-  def zap = docker.image('owasp/zap2docker-weekly')
-  def db = docker.image('mysql/mysql-server:5.6')
-
-
-
-
   stage 'Checkout'
   git url: 'https://www.github.com/h-a-t/devopssec'
 
   stage 'Pull img'
-  //sh 'make pull'
-  zap.pull()
-  db.pull()
-  busy.pull()
+  sh 'make pull'
 
-  stage 'Build'
-  //sh 'make build'
-  def php = docker.build('phpsqli-app', '.')
-
-  //stage 'Clean env'
-  //sh 'make stop && make rm'
+  stage 'Test build'
+  sh 'make build'
 
   stage 'Test with Zap'
+  def busy = docker.image('busybox');
   busy.inside("-v phpsqli-app:/data"){
-    sh "cp -r ./src/php/* /data/"
+    sh "cp -r ./src/php/staging.sql /data/"
     sh "chown -R www-data:www-data /data"
-    sh "ls -la /data"
   }
 
   busy.inside("-v phpsqli-db:/data"){
-    sh "cp -r ./src/sql/* /data/"
-    sh "ls -la /data"
+    sh "cp -r ./src/sql/staging.sql /data/"
   }
 
-  zap.pull()
-  db.pull()
+  def php = docker.build('phpsqli-app', '.')
+  def zap = docker.image('owasp/zap2docker-weekly')
+  def staging_param = '-e MYSQL_RANDOM_ROOT_PASSWORD=yes -e MYSQL_USER=user -e MYSQL_PASSWORD=password --label traefik.enable=false'
+  def traefik_param = "--label traefik.backend='app' --label traefik.port='80' --label traefik.protocol='http' --label traefik.weight='10' --label traefik.frontend.rule='Path:/app' --label traefik.frontend.passHostHeader='true' --label traefik.priority='10' "
+  def stagingdb = db.run('${staging_param} -v phpsqli-db:/docker-entrypoint-initdb.d/ -d')
+  def app = php.run ("-d -P ${traefik_param} -v phpsqli-app:/var/www/html  --link ${stagingdb.id}:db")
 
-  def testdb = db.run('-e MYSQL_ROOT_PASSWORD=root -v phpsqli-db:/docker-entrypoint-initdb.d/ -d')
-  def test = php.run ("-d -P -v phpsqli-app:/var/www/html  --link ${testdb.id}:db")
-
-  zap.inside("--link ${test.id}:app") {
+  zap.inside("--link ${app.id}:app -v phpsqli-zap:/zap/wrk") {
           println('Waiting for server to be ready')
           sh "until \$(curl --output /dev/null --silent --head --fail http://app/index.php); do printf '.'; sleep 5; done"
           println('It Works!')
-          sh "zap-baseline.py -t http://app/index.php"
-
+          sh "ls -la"
+          // Active scan
+          sh "zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true' http://app/index.php"
+          // Passive scan
+          // sh "zap-baseline.py -t http://app/index.php -r report.html"
 }
+
+
+  stage 'QA Staging'
+  input "How do you like ${env.BUILD_URL}/app ?"
+
+  stage 'Production'
+  stagingdb.stop()
+  busy.inside("-v phpsqli-db:/data"){
+    sh "rm -rf /data/*"
+    sh "cp -r ./src/sql/production.sql /data/"
+  }
+  def prod_param = '-e MYSQL_RANDOM_ROOT_PASSWORD=yes -e MYSQL_USER=user -e MYSQL_PASSWORD=p4s5w0rd --label traefik.enable=false'
+  def prod_db = db.run('${prod_param} -v phpsqli-db:/docker-entrypoint-initdb.d/ -d')
+  def prod_app = php.run ("-d -P ${traefik_param} -v phpsqli-app:/var/www/html  --link ${stagingdb.id}:db")
+
+
+
+
+
+
 }

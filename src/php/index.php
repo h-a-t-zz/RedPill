@@ -1,6 +1,7 @@
 <?
+// http://www.mcherifi.org/hacking/tutoriel-sql-injection-les-classiques.html
 //phpinfo();
-$db=mysql_connect("db","root",$_ENV["DB_ENV_MYSQL_ROOT_PASSWORD"]);
+$db=mysql_connect("db",$_ENV["MYSQL_USER"],$_ENV["MYSQL_PASSWORD"]);
 mysql_select_db("sqli",$db);
 $user_id = $_GET['id'];
 $sql = mysql_query("SELECT username, nom, prenom, email FROM users WHERE user_id = $user_id") or die(mysql_error());
