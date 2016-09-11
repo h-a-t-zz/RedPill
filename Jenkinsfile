@@ -10,15 +10,16 @@ stage 'Test build'
   sh 'make build'
 
 stage 'Building env'
+  def state = "staging"
 
   // Puts app stuff
   def busy = docker.image('busybox');
   busy.inside("-v ${appname}-app:/data"){
-    sh "cp -r ./src/php/index.php /data/"
+    sh "cp -r ./src/php/* /data/"
     sh "chown -R www-data:www-data /data"
   }
   // Puts db stuff
-  busy.inside("-v ${appname}-db:/data"){
+  busy.inside("-v ${appname}-${state}-db:/data"){
     sh "rm -rf /data/*"
     sh "cp -r ./src/sql/staging.sql /data/"
   }
@@ -28,13 +29,12 @@ stage 'Building env'
   def db = docker.image('mysql/mysql-server:5.6')
 
   // Defines staging param
-  def state = "staging"
   def db_param = "-e 'MYSQL_RANDOM_ROOT_PASSWORD=yes' -e 'MYSQL_USER=user' -e 'MYSQL_PASSWORD=password' -e 'MYSQL_DATABASE=sqli' --label 'traefik.enable=false'"
   def app_param = "--label traefik.backend='app-${state}' --label traefik.port='80' --label traefik.protocol='http' --label traefik.weight='10' --label traefik.frontend.rule='Host:${state}.chocobo.yogosha.com' --label traefik.frontend.passHostHeader='true' --label traefik.priority='10' -e BUILD_STAGE=${state}"
 
 
   // Starts Staging instances
-  def staging_db = db.run("${db_param} -v ${appname}-db:/docker-entrypoint-initdb.d/")
+  def staging_db = db.run("${db_param} -v ${appname}-${state}-db:/docker-entrypoint-initdb.d/")
   def staging_app = php.run ("-P ${app_param} -v ${appname}-app:/var/www/html  --link ${staging_db.id}:db")
 
   // Runs quick security check
@@ -60,23 +60,21 @@ stage 'Test with OWASP ZapProxy'
   stage 'Bug Bounty'
   // Defines bb param
   state = "bb"
-  // Staging data is enough! (eventually prevention of data leak depending on your data quality)
   app_param = "--label traefik.backend='app-${state}' --label traefik.port='80' --label traefik.protocol='http' --label traefik.weight='10' --label traefik.frontend.rule='Host:${state}.chocobo.yogosha.com' --label traefik.frontend.passHostHeader='true' --label traefik.priority='10' -e BUILD_STAGE=${state}"
   def bb_app = php.run ("-P ${app_param} -v ${appname}-app:/var/www/html  --link ${staging_db.id}:db")
 
-
   stage 'Production'
-  staging_db.stop()
   // Loading a snapshot of Production data
-  busy.inside("-v ${appname}-db:/data"){
+  state = "prod"
+  busy.inside("-v ${appname}-${state}-db:/data"){
     sh "rm -rf /data/*"
     sh "cp -r ./src/sql/production.sql /data/"
   }
   // Push to the interwebz!
-  state = "prod"
+
   app_param = "--label traefik.backend='app-${state}' --label traefik.port='80' --label traefik.protocol='http' --label traefik.weight='10' --label traefik.frontend.rule='Host:${state}.chocobo.yogosha.com' --label traefik.frontend.passHostHeader='true' --label traefik.priority='10' -e BUILD_STAGE=${state}"
   db_param = "-e MYSQL_RANDOM_ROOT_PASSWORD=yes -e MYSQL_USER=user -e MYSQL_PASSWORD=p4s5w0rd -e 'MYSQL_DATABASE=sqli' --label traefik.enable=false"
 
-  def prod_db = db.run("${db_param} -v ${appname}-db:/docker-entrypoint-initdb.d/")
+  def prod_db = db.run("${db_param} -v ${appname}-${state}-db:/docker-entrypoint-initdb.d/")
   def prod_app = php.run ("-d -P ${app_param} -v ${appname}-app:/var/www/html  --link ${prod_db.id}:db")
 }
