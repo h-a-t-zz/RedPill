@@ -10,6 +10,5 @@ CREATE TABLE IF NOT EXISTS users (
 )
 ENGINE=INNODB;
 
-INSERT INTO sqli.users (user_id, username, nom, prenom, email) VALUES ('0','y.kazar', 'Yassir', 'Kazar', 'y.kazar@yogosha.com');
-INSERT INTO sqli.users (user_id, username, nom, prenom, email) VALUES ('1','f.epelboin', 'Fabrice', 'Epelboin', 'f.epelboin@yogosha.com');
-INSERT INTO sqli.users (user_id, username, nom, prenom, email) VALUES ('2','hat', 'Hicham', 'Tolimat', 'hat@yogosha.com');
+INSERT INTO sqli.users (user_id, username, nom, prenom, email) VALUES ('0','y.kazar', 'Yassir', 'Kazar', 'yassir@yogosha.com');
+INSERT INTO sqli.users (user_id, username, nom, prenom, email) VALUES ('1','f.epelboin', 'Fabrice', 'Epelboin', 'fabrice@yogosha.com');

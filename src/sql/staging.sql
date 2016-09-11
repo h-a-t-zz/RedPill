@@ -12,4 +12,3 @@ ENGINE=INNODB;
 
 INSERT INTO sqli.users (user_id, username, nom, prenom, email) VALUES ('0','toto', 'toto', 'toto', 'toto@test.com');
 INSERT INTO sqli.users (user_id, username, nom, prenom, email) VALUES ('1','tata', 'tata', 'tata', 'tata@test.com');
-INSERT INTO sqli.users (user_id, username, nom, prenom, email) VALUES ('2','titi', 'titi', 'titi', 'titi@test.com');

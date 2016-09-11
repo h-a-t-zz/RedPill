@@ -1,0 +1,32 @@
+defaultEntryPoints = ["http", "https"]
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+    [entryPoints.http.redirect]
+      entryPoint = "https"
+  [entryPoints.https]
+  address = ":443"
+    [entryPoints.https.tls]
+[acme]
+email = "hat@yogosha.com"
+storageFile = "acme.json"
+entrypoint = "https"
+#onDemand=true
+[[acme.domains]]
+main = "programmez.yogosha.com"
+sans = ["staging.programmez.yogosha.com","bb.programmez.yogosha.com", "prod.programmez.yogosha.com"]
+
+graceTimeOut = 10
+logLevel = "DEBUG"
+ProvidersThrottleDuration = "2s"
+accessLogsFile = "/data/log/access.log"
+traefikLogsFile = "/data/log/traefik.log"
+
+[web]
+address = ":8080"
+ReadOnly = true
+
+[docker]
+endpoint = "unix:///var/run/docker.sock"
+domain = "programmez.yogosha.com"
+watch = true
