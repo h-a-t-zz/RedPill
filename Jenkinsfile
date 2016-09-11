@@ -70,8 +70,8 @@ stage 'Test with OWASP ZapProxy'
     sh "rm -rf /data/*"
     sh "cp -r ./src/sql/production.sql /data/"
   }
-  // Push to the interwebz!
 
+  // Push to the interwebz!
   app_param = "--label traefik.backend='app-${state}' --label traefik.port='80' --label traefik.protocol='http' --label traefik.weight='10' --label traefik.frontend.rule='Host:${state}.chocobo.yogosha.com' --label traefik.frontend.passHostHeader='true' --label traefik.priority='10' -e BUILD_STAGE=${state}"
   db_param = "-e MYSQL_RANDOM_ROOT_PASSWORD=yes -e MYSQL_USER=user -e MYSQL_PASSWORD=p4s5w0rd -e 'MYSQL_DATABASE=sqli' --label traefik.enable=false"
 
