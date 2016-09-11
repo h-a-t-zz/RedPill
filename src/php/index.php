@@ -1,4 +1,4 @@
-<center><img src="http://www.programmez.com/sites/all/themes/programmez/images/logo.png"></center>
+<center><img src="logo.png"></center>
 <h1> Env: <? echo $_ENV["BUILD_STAGE"] ?></h1>
 <?
 $db=mysql_connect("db",$_ENV["DB_ENV_MYSQL_USER"],$_ENV["DB_ENV_MYSQL_PASSWORD"]);
