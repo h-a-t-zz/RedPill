@@ -1,14 +1,12 @@
+<center><img src="http://www.programmez.com/sites/all/themes/programmez/images/logo.png"></center>
+<h1> Env: <? echo $_ENV["BUILD_STAGE"] ?></h1>
 <?
-// kudos http://www.mcherifi.org/hacking/tutoriel-sql-injection-les-classiques.html
-
 $db=mysql_connect("db",$_ENV["DB_ENV_MYSQL_USER"],$_ENV["DB_ENV_MYSQL_PASSWORD"]);
 mysql_select_db("sqli",$db);
 $user_id = $_GET['id'];
 $sql = mysql_query("SELECT username, nom, prenom, email FROM users WHERE user_id = $user_id") or die(mysql_error());
 if(mysql_num_rows($sql) > 0)
 {
-//$data = mysql_fetch_object($sql);
-//echo "
 while($row = mysql_fetch_assoc($sql)) { ?>
   <fieldset>
   <legend>Profil of <? echo $row["username"] ?></legend>

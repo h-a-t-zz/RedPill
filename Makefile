@@ -15,6 +15,10 @@ stop:
 	docker stop $(NAME)-db
 	docker stop $(NAME)-php
 
-clean:
+rm:
 	docker rm $(NAME)-db
 	docker rm $(NAME)-php
+
+clean:
+	docker rm -v $(docker ps -a -q -f status=exited)
+	docker rmi $(docker images -f "dangling=true" -q)

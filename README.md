@@ -1,7 +1,7 @@
 ##Content
 .  
 ├── Dockerfile -> Dev World  
-├── Jenkinsfile -> QA/Security World  
+├── Jenkinsfile -> DevOpsSec World  
 ├── LICENSE  
 ├── Makefile -> Ops World  
 ├── README.md  
@@ -23,3 +23,9 @@ docker run -p 8080 -d -v /data/jenkins/var/jenkins_home:/var/jenkins_home -v /va
          -v $(which make):/usr/bin/make --label traefik.backend='jenkins' --label traefik.port='8080' --label traefik.protocol='http' \  
         --label traefik.weight='10' --label traefik.frontend.rule='Host:chocobo.yogosha.com' \  
         --label traefik.frontend.passHostHeader='true' --label traefik.priority='10' jenkinsci/docker-workflow-demo  
+
+sqli :  
+http://chocobo.yogosha.com:32808/?id=1%20UNION%20SELECT%20username,%20nom,%20prenom,%20email%20FROM%20users;  
+
+correct:  
+$user_id = intval($_GET['id']);  
