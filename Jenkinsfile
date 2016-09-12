@@ -1,5 +1,5 @@
 node{
-  def appname = "PoC"
+  def appname = "hpoc"
 stage 'Checkout'
   git url: 'https://www.github.com/h-a-t/PoC'
 
