@@ -1,7 +1,7 @@
 node{
-  def appname = "programmez"
+  def appname = "PoC"
 stage 'Checkout'
-  git url: 'https://www.github.com/h-a-t/programmez'
+  git url: 'https://www.github.com/h-a-t/PoC'
 
 stage 'Pull img'
   sh 'make pull'
