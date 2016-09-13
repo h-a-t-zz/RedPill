@@ -2,7 +2,7 @@
 <html>
 <body>
 <center><img height="100px" src="star.png"></center>
-<center><h4>PoC||GTFO</h4></center>
+<center><h4>Web Hospital PoC</h4></center>
 
 <br><br><br>
 
