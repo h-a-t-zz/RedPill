@@ -14,7 +14,7 @@ stage('SonarQube analysis') {
     def scannerHome = tool 'SonarQubeScanner';
     sh "ls -la"
     withSonarQubeEnv('SonarQube') {
-      sh "${scannerHome}/bin/sonar-scanner -D sonar.projectKey=${appname} -D sonar.sources=./src/php"
+      sh "${scannerHome}/bin/sonar-scanner -D sonar.projectKey=${appname} -D sonar.sources=/var/jenkins_home/workspace/${appname}/src/php/"
     }
   }
 
