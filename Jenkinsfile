@@ -1,13 +1,21 @@
 node{
   def appname = "hpoc"
 stage 'Checkout'
-  git url: 'https://www.github.com/h-a-t/PoC'
+  git url: 'https://www.github.com/h-a-t/RedPill'
 
 stage 'Pull img'
   sh 'make pull'
 
 stage 'Test build'
   sh 'make build'
+
+stage('SonarQube analysis') {
+    // requires SonarQube Scanner 2.8+
+    def scannerHome = tool 'SonarQube Scanner 2.8';
+    withSonarQubeEnv('SonarQube') {
+      sh "${scannerHome}/bin/sonar-scanner"
+    }
+  }
 
 stage 'Building env'
   def state = "staging"
