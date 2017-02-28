@@ -1,5 +1,5 @@
 node{
-  def appname = "RedPill"
+  def appname = "redpill"
 stage 'Checkout'
   git url: 'https://www.github.com/h-a-t/RedPill'
 
