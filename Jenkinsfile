@@ -1,5 +1,5 @@
 node{
-  def appname = "hpoc"
+  def appname = "RedPill"
 stage 'Checkout'
   git url: 'https://www.github.com/h-a-t/RedPill'
 
@@ -12,8 +12,9 @@ stage 'Test build'
 stage('SonarQube analysis') {
     // requires SonarQube Scanner 2.8+
     def scannerHome = tool 'SonarQubeScanner';
+    sh "ls -la"
     withSonarQubeEnv('SonarQube') {
-      sh "${scannerHome}/bin/sonar-scanner -D sonar.projectKey=${appname} -D sonar.sources=."
+      sh "${scannerHome}/bin/sonar-scanner -D sonar.projectKey=${appname} -D sonar.sources=./src"
     }
   }
 
