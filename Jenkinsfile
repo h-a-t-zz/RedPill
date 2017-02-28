@@ -14,7 +14,7 @@ stage('SonarQube analysis') {
     def scannerHome = tool 'SonarQubeScanner';
     sh "ls -la"
     withSonarQubeEnv('SonarQube') {
-      sh "${scannerHome}/bin/sonar-scanner -D sonar.projectKey=${appname} -D sonar.sources=./src"
+      sh "${scannerHome}/bin/sonar-scanner -D sonar.projectKey=${appname} -D sonar.sources=$PWD/src/"
     }
   }
 
