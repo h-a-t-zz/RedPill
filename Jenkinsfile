@@ -39,7 +39,7 @@ stage 'Building env'
 
   // Defines staging param
   def db_param = "-e 'MYSQL_RANDOM_ROOT_PASSWORD=yes' -e 'MYSQL_USER=user' -e 'MYSQL_PASSWORD=password' -e 'MYSQL_DATABASE=sqli' --label 'traefik.enable=false'"
-  def app_param = "--label traefik.backend='app-${state}' --label traefik.port='80' --label traefik.protocol='http' --label traefik.weight='10' --label traefik.frontend.rule='Host:${state}.build.h5f.eu' --label traefik.frontend.passHostHeader='true' --label traefik.priority='10' -e BUILD_STAGE=${state}"
+  def app_param = "--label traefik.backend='app-${state}' --label traefik.port='80' --label traefik.protocol='http' --label traefik.weight='10' --label traefik.frontend.rule='Host:${state}.chocobo.yogosha.com' --label traefik.frontend.passHostHeader='true' --label traefik.priority='10' -e BUILD_STAGE=${state}"
 
 
   // Starts Staging instances
@@ -61,7 +61,7 @@ stage 'Test with OWASP ZapProxy'
 
   // "Oh hai o/ Can I haz a quality check?"
   stage 'QA'
-  input "Is https://${state}.build.h5f.eu going according to plan?"
+  input "Is https://${state}.chocobo.yogosha.com going according to plan?"
 
   staging_app.stop()
 
@@ -69,7 +69,7 @@ stage 'Test with OWASP ZapProxy'
   stage 'Bug Bounty'
   // Defines bb param
   state = "bb"
-  app_param = "--label traefik.backend='app-${state}' --label traefik.port='80' --label traefik.protocol='http' --label traefik.weight='10' --label traefik.frontend.rule='Host:${state}.build.h5f.eu' --label traefik.frontend.passHostHeader='true' --label traefik.priority='10' -e BUILD_STAGE=${state}"
+  app_param = "--label traefik.backend='app-${state}' --label traefik.port='80' --label traefik.protocol='http' --label traefik.weight='10' --label traefik.frontend.rule='Host:${state}.chocobo.yogosha.com' --label traefik.frontend.passHostHeader='true' --label traefik.priority='10' -e BUILD_STAGE=${state}"
   def bb_app = php.run ("-P ${app_param} -v ${appname}-app:/var/www/html  --link ${staging_db.id}:db")
 
   stage 'Production'
@@ -81,7 +81,7 @@ stage 'Test with OWASP ZapProxy'
   }
 
   // Push to the interwebz!
-  app_param = "--label traefik.backend='app-${state}' --label traefik.port='80' --label traefik.protocol='http' --label traefik.weight='10' --label traefik.frontend.rule='Host:${state}.build.h5f.eu' --label traefik.frontend.passHostHeader='true' --label traefik.priority='10' -e BUILD_STAGE=${state}"
+  app_param = "--label traefik.backend='app-${state}' --label traefik.port='80' --label traefik.protocol='http' --label traefik.weight='10' --label traefik.frontend.rule='Host:${state}.chocobo.yogosha.com' --label traefik.frontend.passHostHeader='true' --label traefik.priority='10' -e BUILD_STAGE=${state}"
   db_param = "-e MYSQL_RANDOM_ROOT_PASSWORD=yes -e MYSQL_USER=user -e MYSQL_PASSWORD=p4s5w0rd -e 'MYSQL_DATABASE=sqli' --label traefik.enable=false"
 
   def prod_db = db.run("${db_param} -v ${appname}-${state}-db:/docker-entrypoint-initdb.d/")
